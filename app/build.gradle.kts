@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "br.com.alura.aluvery"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "br.com.alura.aluvery"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -54,6 +54,10 @@ dependencies {
 //    implementation(libs.play.services.analytics.impl)
     implementation(libs.coil.compose)
     implementation(libs.androidx.graphics.shapes)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.constraintlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
