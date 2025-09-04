@@ -18,11 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import br.com.alura.aluvery.dao.ProductDao
-import br.com.alura.aluvery.sampledata.sampleCandies
-import br.com.alura.aluvery.sampledata.sampleDrinks
 import br.com.alura.aluvery.sampledata.sampleSections
+import br.com.alura.aluvery.ui.screens.HomeScreen
+import br.com.alura.aluvery.ui.screens.HomeScreenUiState
 import br.com.alura.aluvery.ui.ui.AluveryTheme
-import br.com.alura.aluvery.ui.ui.Screens.HomeScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -32,26 +31,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AluveryTheme {
-                Surface {
-                    App(onFabClick = {
-                        Log.i("MainActivity", "Clicou no FAB - Abrindo formulário")
-                        startActivity(
-                            Intent(
-                                this,
-                                ProdutoFormActivity::class.java
-                            )
-                        )
-                    }) {
-                        val sections = mapOf(
-                            "Todos os produtos" to dao.products(),
-                            "Promoções" to sampleDrinks + sampleCandies,
-                            "Doces" to sampleCandies,
-                            "Bebidas" to sampleDrinks
-                        )
-                        HomeScreen(sections = sections)
-                    }
-                }
+            App(onFabClick = {
+                Log.i("MainActivity", "Clicou no FAB - Abrindo formulário")
+                startActivity(
+                    Intent(
+                        this,
+                        ProdutoFormActivity::class.java
+                    )
+                )
+            }) {
+                val products = dao.products()
+                HomeScreen(products = products)
             }
         }
     }
@@ -81,6 +71,6 @@ fun App(
 @Composable
 fun AppPreview() {
     App {
-        HomeScreen(sections = sampleSections)
+        HomeScreen(HomeScreenUiState(sections = sampleSections))
     }
 }

@@ -1,7 +1,6 @@
 package br.com.alura.aluvery.ui.components
 
 import android.icu.text.DecimalFormat
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -37,11 +36,97 @@ import br.com.alura.aluvery.ui.ui.AluveryTheme
 import coil.compose.AsyncImage
 import java.math.BigDecimal
 
+
+class ProdutoFormUiSate(
+    val url: String = "",
+    val name: String = "",
+    val price: String = "",
+    val description: String = "",
+    val isShowPreview: Boolean = url.isNotBlank(),
+    val onUrlChange: (String) -> Unit = {},
+    val onNameChange: (String) -> Unit = {},
+    val onPriceChange: (String) -> Unit = {},
+    val onDescriptionChange: (String) -> Unit = {}
+)
+
 @Composable
 fun ProdutoFormScreen(
-    onSaveClick: (Product) -> Unit = {},
+    onSaveClick: (Product) -> Unit = {}
+) {
+    var url by remember { // estado da variavel
+        mutableStateOf("")
+    }
+
+    var name by remember { // estado da variavel
+        mutableStateOf("")
+    }
+
+    var price by remember { // estado da variavel
+        mutableStateOf("")
+    }
+
+    var description by remember { // estado da variavel
+        mutableStateOf("")
+    }
+
+    val formatter = remember { // estado da variavel
+        DecimalFormat("#.##") // formata o valor para o padrão da moeda
+    }
+
+    ProdutoFormScreen(
+        state = ProdutoFormUiSate(
+            url = url,
+            name = name,
+            price = price,
+            description = description,
+            onUrlChange = {
+                url = it
+            },
+            onNameChange = {
+                name = it
+            },
+            onPriceChange = {
+                try {
+                    price = formatter.format(BigDecimal(it))
+                } catch (e: IllegalArgumentException) {
+                    if (it.isBlank()) {
+                        price = it
+                    }
+                }
+            },
+            onDescriptionChange = {
+                description = it
+            }
+        ),
+        onSaveClick = {
+            val convertedPrice = try {
+                BigDecimal(price)
+            } catch (e: NumberFormatException) {
+                BigDecimal.ZERO
+            }
+            val product = Product(
+                name = name,
+                image = url,
+                price = convertedPrice,
+                description = description
+            )
+            onSaveClick(product)
+        }
+    )
+
+}
+
+@Composable
+fun ProdutoFormScreen(
+    state: ProdutoFormUiSate = ProdutoFormUiSate(),
+    onSaveClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val url = state.url
+    val name = state.name
+    val price = state.price
+    val description = state.description
+
     Column(
         modifier
             .fillMaxSize()
@@ -55,9 +140,6 @@ fun ProdutoFormScreen(
             Modifier
                 .fillMaxWidth(), fontSize = 28.sp
         )
-        var url by remember {
-            mutableStateOf("")
-        }
         if (url.isNotBlank()) {
             AsyncImage(
                 model = url, contentDescription = null,
@@ -71,7 +153,7 @@ fun ProdutoFormScreen(
         }
         TextField(
             value = url,
-            onValueChange = { url = it },
+            onValueChange = state.onUrlChange,
             Modifier.fillMaxWidth(),
             label = {
                 Text(text = "Url da imagem")
@@ -81,12 +163,9 @@ fun ProdutoFormScreen(
                 imeAction = ImeAction.Next
             )
         )
-        var name by remember { // estado da variavel
-            mutableStateOf("")
-        }
         TextField(
             value = name,
-            onValueChange = { name = it },
+            onValueChange = state.onNameChange,
             Modifier.fillMaxWidth(),
             label = {
                 Text(text = "Nome")
@@ -97,24 +176,9 @@ fun ProdutoFormScreen(
                 capitalization = KeyboardCapitalization.Words
             )
         )
-        var price by remember { // estado da variavel
-            mutableStateOf("")
-        }
-
-        val formatter = remember {
-            DecimalFormat("#.##") // formata o valor para o padrão da moeda
-        }
         TextField(
             value = price,
-            onValueChange = {
-                try {
-                    price = formatter.format(BigDecimal(it))
-                } catch (e: IllegalArgumentException) {
-                    if (it.isBlank()) {
-                        price = it
-                    }
-                }
-            },
+            onValueChange = state.onPriceChange,
             Modifier.fillMaxWidth(),
             label = {
                 Text(text = "Preço")
@@ -124,12 +188,9 @@ fun ProdutoFormScreen(
                 imeAction = ImeAction.Next
             )
         )
-        var description by remember { // estado da variavel
-            mutableStateOf("")
-        }
         TextField(
             value = description,
-            onValueChange = { description = it },
+            onValueChange = state.onDescriptionChange,
             Modifier
                 .fillMaxWidth()
                 .heightIn(100.dp),
@@ -142,21 +203,7 @@ fun ProdutoFormScreen(
             )
         )
         Button(
-            onClick = {
-                val convertedPrice = try {
-                    BigDecimal(price)
-                } catch (e: NumberFormatException) {
-                    BigDecimal.ZERO
-                }
-                val product = Product(
-                    name = name,
-                    image = url,
-                    price = convertedPrice,
-                    description = description
-                )
-                Log.i("Formulario", "Criando o produto $product")
-                onSaveClick(product)
-            },
+            onClick = onSaveClick,
             Modifier.fillMaxWidth()
         ) {
             Text(text = "Salvar")
@@ -170,7 +217,7 @@ fun ProdutoFormScreen(
 fun ProdutoFormScreenPreview() {
     AluveryTheme {
         Surface {
-            ProdutoFormScreen()
+            ProdutoFormScreen(state = ProdutoFormUiSate())
         }
     }
 }
